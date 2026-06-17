@@ -25,16 +25,21 @@ jobs:
         pip install --upgrade pip
         pip install buildozer cython
 
-    - name: Setujui Lisensi Android SDK & Ambil Alat
+    - name: Paksa Setujui Semua Lisensi Android SDK
       run: |
-        # Membuat folder tujuan SDK secara manual agar Buildozer tidak bingung
-        mkdir -p ~/.buildozer/android/platform/
-        # Menjalankan perintah awal untuk memicu download SDK asli dari Google
+        # Membuat folder lisensi Android secara manual di sistem server
+        mkdir -p ~/.buildozer/android/platform/android-sdk/licenses
+        
+        # Menyuntikkan kode persetujuan lisensi Google agar tidak minta konfirmasi (y/N) lagi
+        echo -e "\n24133fcc0096f836271497defb19f11947f69742\n8522d50130d2cb7d9f28b577285241b031b29529\nd56f5187479451eabf01fb7437c3550b313ef771\nd624a74674512bb40d4e8194b005c36a311d4e62\nb16278a433f78a05faac582a21c2957f730303d9\n47f217d10046607d391307517d1802d2dd0198c2\n601085b94cd77f3b5498866d5fe4be477b72a803" > ~/.buildozer/android/platform/android-sdk/licenses/android-sdk-license
+        echo -e "\n2f1120141e65b40a12be44f874c99cc874247afc" > ~/.buildozer/android/platform/android-sdk/licenses/android-googletv-license
+        
+        # Jalankan pemicu awal buildozer
         buildozer android licenses || true
 
     - name: Proses Merakit APK (Buildozer)
       run: |
-        # Server merakit APK dengan instruksi bersih
+        # Sekarang rakit dengan aman tanpa terhadang lisensi
         buildozer android debug
 
     - name: Simpan APK Jadi Ke GitHub
