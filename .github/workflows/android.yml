@@ -29,20 +29,18 @@ jobs:
       run: |
         pip install buildozer
 
-    - name: Setujui Lisensi Android SDK Secara Aman
+    - name: Suntik Lisensi Langsung ke Rumah Buildozer
       run: |
-        # Menggunakan alat resmi sdkmanager bawaan server untuk menyetujui lisensi tanpa 'yes |'
-        mkdir -p ~/.android
-        touch ~/.android/repositories.cfg
-        echo "y" | ${ANDROID_HOME}/cmdline-tools/latest/bin/sdkmanager --licenses || true
+        # Membuat folder lisensi tepat di tempat yang dicari oleh Buildozer secara lokal
+        mkdir -p ~/.buildozer/android/platform/android-sdk/licenses
+        
+        # Menyuntikkan kode persetujuan lisensi resmi Google Android
+        echo -e "\n24133fcc0096f836271497defb19f11947f69742\n8522d50130d2cb7d9f28b577285241b031b29529\nd56f5187479451eabf01fb7437c3550b313ef771\nd624a74674512bb40d4e8194b005c36a311d4e62\nb16278a433f78a05faac582a21c2957f730303d9\n47f217d10046607d391307517d1802d2dd0198c2\n601085b94cd77f3b5498866d5fe4be477b72a803" > ~/.buildozer/android/platform/android-sdk/licenses/android-sdk-license
 
     - name: Proses Merakit APK (Buildozer)
-      env:
-        # Memaksa Buildozer menggunakan NDK stabil yang sudah disediakan oleh GitHub
-        ANDROID_NDK_HOME: ${{ env.ANDROID_NDK_LATEST_HOME }}
       run: |
-        # Rakit langsung tanpa gangguan input interaktif
-        buildozer android debug
+        # Menjalankan buildozer dengan perintah otomatis menyetujui lisensi yang diunduh
+        buildozer android debug --accept-licenses
 
     - name: Simpan APK Jadi Ke GitHub
       uses: actions/upload-artifact@v4
