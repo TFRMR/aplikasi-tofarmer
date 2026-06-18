@@ -18,29 +18,31 @@ jobs:
       with:
         python-version: '3.10'
 
-    - name: Instal Java & Alat Pendukung Linux
+    - name: Pasang Java Resmi (Wajib untuk Android)
+      uses: actions/setup-java@v4
+      with:
+        distribution: 'temurin'
+        java-version: '17'
+
+    - name: Pasang Android SDK & Setujui Lisensi Secara Otomatis
+      uses: android-actions/setup-android@v3
+
+    - name: Instal Alat Pendukung Linux
       run: |
         sudo apt update
-        sudo apt install -y git zip unzip openjdk-17-jdk autoconf libtool pkg-config zlib1g-dev libncurses5-dev libgdbm-dev libnss3-dev libssl-dev libreadline-dev libffi-dev libsqlite3-dev tk-dev libgdbm-compat-dev liblzma-dev lzma
+        sudo apt install -y git zip unzip autoconf libtool pkg-config zlib1g-dev libncurses5-dev libgdbm-dev libnss3-dev libssl-dev libreadline-dev libffi-dev libsqlite3-dev tk-dev libgdbm-compat-dev liblzma-dev lzma
         pip install --upgrade pip
-        pip install cython
-
-    - name: Instal Buildozer Versi Stabil
-      run: |
-        pip install buildozer
-
-    - name: Suntik Lisensi Langsung ke Rumah Buildozer
-      run: |
-        # Membuat folder lisensi tepat di tempat yang dicari oleh Buildozer secara lokal
-        mkdir -p ~/.buildozer/android/platform/android-sdk/licenses
-        
-        # Menyuntikkan kode persetujuan lisensi resmi Google Android
-        echo -e "\n24133fcc0096f836271497defb19f11947f69742\n8522d50130d2cb7d9f28b577285241b031b29529\nd56f5187479451eabf01fb7437c3550b313ef771\nd624a74674512bb40d4e8194b005c36a311d4e62\nb16278a433f78a05faac582a21c2957f730303d9\n47f217d10046607d391307517d1802d2dd0198c2\n601085b94cd77f3b5498866d5fe4be477b72a803" > ~/.buildozer/android/platform/android-sdk/licenses/android-sdk-license
+        pip install cython buildozer
 
     - name: Proses Merakit APK (Buildozer)
       run: |
-        # Menjalankan buildozer dengan perintah otomatis menyetujui lisensi yang diunduh
-        buildozer android debug --accept-licenses
+        # Kita buat folder tujuan buildozer, lalu kita hubungkan (symlink) 
+        # ke Android SDK resmi yang sudah lolos lisensi di atas tadi.
+        mkdir -p ~/.buildozer/android/platform/
+        ln -s $ANDROID_HOME ~/.buildozer/android/platform/android-sdk
+        
+        # Jalankan rakitan dengan aman
+        buildozer android debug
 
     - name: Simpan APK Jadi Ke GitHub
       uses: actions/upload-artifact@v4
