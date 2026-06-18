@@ -7,7 +7,7 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
 
     steps:
     - name: Ambil Kode Proyek
@@ -31,9 +31,10 @@ jobs:
 
     - name: Proses Merakit APK (Buildozer)
       run: |
-        # Perintah otomatis agar Buildozer menjawab "YA" sendiri saat Google meminta lisensi SDK
+        # Perintah otomatis pasang SDK dan bypass lisensi Google di Ubuntu terbaru
+        mkdir -p ~/.buildozer/android/platform/
         yes | buildozer android debug
-
+        
     - name: Simpan APK Jadi Ke GitHub
       uses: actions/upload-artifact@v4
       with:
