@@ -29,12 +29,21 @@ jobs:
       run: |
         pip install buildozer
 
-    - name: Proses Merakit APK (Buildozer)
+    - name: Setujui Lisensi Android SDK Secara Aman
       run: |
-        # Perintah otomatis pasang SDK dan bypass lisensi Google di Ubuntu terbaru
-        mkdir -p ~/.buildozer/android/platform/
-        yes | buildozer android debug
-        
+        # Menggunakan alat resmi sdkmanager bawaan server untuk menyetujui lisensi tanpa 'yes |'
+        mkdir -p ~/.android
+        touch ~/.android/repositories.cfg
+        echo "y" | ${ANDROID_HOME}/cmdline-tools/latest/bin/sdkmanager --licenses || true
+
+    - name: Proses Merakit APK (Buildozer)
+      env:
+        # Memaksa Buildozer menggunakan NDK stabil yang sudah disediakan oleh GitHub
+        ANDROID_NDK_HOME: ${{ env.ANDROID_NDK_LATEST_HOME }}
+      run: |
+        # Rakit langsung tanpa gangguan input interaktif
+        buildozer android debug
+
     - name: Simpan APK Jadi Ke GitHub
       uses: actions/upload-artifact@v4
       with:
